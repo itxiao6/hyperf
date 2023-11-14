@@ -13,6 +13,7 @@ namespace Hyperf\Guzzle;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Handler\StreamHandler;
 use Hyperf\Coroutine\Coroutine;
 use Psr\Container\ContainerInterface;
 
@@ -46,7 +47,11 @@ class ClientFactory
         }
 
         $config = array_replace(['handler' => $stack], $options);
-
+        if(extension_loaded('swow')){
+            $handler = new StreamHandler();
+            $stack = HandlerStack::create($handler);
+            $config['handler'] = $stack;
+        }
         if (method_exists($this->container, 'make')) {
             // Create by DI for AOP.
             return $this->container->make(Client::class, ['config' => $config]);
